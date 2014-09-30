@@ -194,6 +194,7 @@ namespace core
 	    {
 		string leaf = dirs->path().filename().string();
 		std::transform(leaf.begin(),leaf.end(),leaf.begin(),::tolower);
+                printf("%s:%d Scanning dirs->path()[%s]  where leaf=%s\n", __FILE__, __LINE__, dirs->path().string().c_str(), leaf.c_str());
 		if ( leaf == appDirName )
 		{
                     // Get the shortest path name that looks like the AppDir
