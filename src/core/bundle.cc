@@ -188,13 +188,19 @@ namespace core
 	appDirName = "bin";
 #endif
 	bf::recursive_directory_iterator	dirs(rootDir);
+        int visitedDirectories = 0;
 	while ( dirs!=bf::recursive_directory_iterator() )
 	{
 	    if ( is_directory(dirs->path()) )
 	    {
 		string leaf = dirs->path().filename().string();
+                ++visitedDirectories;
 		std::transform(leaf.begin(),leaf.end(),leaf.begin(),::tolower);
-                printf("%s:%d Scanning dirs->path()[%s]  where leaf=%s\n", __FILE__, __LINE__, dirs->path().string().c_str(), leaf.c_str());
+#if 1 // debugging
+                if ( visitedDirectories < 200 ) {
+                    printf("%s:%d Scanning dirs->path()[%s]  where leaf=%s\n", __FILE__, __LINE__, dirs->path().string().c_str(), leaf.c_str());
+                }
+#endif
 		if ( leaf == appDirName )
 		{
                     // Get the shortest path name that looks like the AppDir
