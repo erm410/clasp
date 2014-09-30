@@ -75,17 +75,11 @@ namespace core
 
 	string cwd = this->_StartupWorkingDir.string();
 	bf::path appDir = this->findAppDir(argv0,cwd,envVar);
-	// First crawl up the directory tree and look for the cando root
+	// First crawl up the directory tree and look for the clasp root
 	bf::path curPath = appDir;
 	while ( curPath.has_relative_path() )
 	{
-	    // The following line used to contain curPath.leaf().find("cando") but that
-	    // is weird because .leaf()[-now depreciated-] returned a path and not a string!!!!!
-	    // I changed it to what should work now but the behavior might have changed!!!!!!! Aug15-2011
-	    if ( curPath.filename().string().find("clasp")!=string::npos)
-	    {
-		break;
-	    }
+	    if ( curPath.filename().string().find("clasp")!=string::npos) break;
 	    curPath = curPath.branch_path();
 	}
 	if ( !curPath.has_relative_path() )
@@ -94,7 +88,7 @@ namespace core
 				" It must contain the word \"clasp\".\n"));
 	}
 	this->_RootDir = curPath;
-        printf("%s:%d this->_RootDir = %s\n", __FILE__, __LINE__, this->_RootDir.string().c_str());
+        printf("%s:%d this->_RootDir = %s\n", __FILE__, __LINE__, this->_RootDir.string().c_str()); 
 	this->findSubDirectories(curPath);
 	this->_Initialized=true;
     }
@@ -202,19 +196,27 @@ namespace core
 		std::transform(leaf.begin(),leaf.end(),leaf.begin(),::tolower);
 		if ( leaf == appDirName )
 		{
-		    this->_AppDir = dirs->path();
+                    // Get the shortest path name that looks like the AppDir
+                    if ( this->_AppDir.string().length() > dirs->path().string().length() ) {
+                        this->_AppDir = dirs->path();
+                        printf("%s:%d this->_AppDir = %s\n", __FILE__, __LINE__, this->_AppDir.string().c_str()); 
+                    }
 		} else if ( leaf == "resources" )
 		{
 		    this->_ResourcesDir = dirs->path();
+                    printf("%s:%d this->_ResourcesDir = %s\n", __FILE__, __LINE__, this->_ResourcesDir.string().c_str()); 
 		} else if ( leaf == "databases" )
 		{
 		    this->_DatabasesDir = dirs->path();
+                    printf("%s:%d this->_DatabasesDir = %s\n", __FILE__, __LINE__, this->_DatabasesDir.string().c_str()); 
 		} else if ( leaf == "lib" )
 		{
 		    this->_LibDir = dirs->path();
+                    printf("%s:%d this->_LibDir = %s\n", __FILE__, __LINE__, this->_LibDir.string().c_str()); 
 		} else if ( leaf == "lisp" )
 		{
 		    this->_LispDir = dirs->path();
+                    printf("%s:%d this->_LispDir = %s\n", __FILE__, __LINE__, this->_LispDir.string().c_str()); 
 		}
 	    }
 	    dirs++;
@@ -224,6 +226,7 @@ namespace core
 	{
 //	    printf("Using CLASP_LISP_SOURCE_DIR --> %s\n", lispdir );
 	    this->_LispDir = boost_filesystem::path(lispdir);
+            printf("%s:%d set from CLASP_LISP_SOURCE_DIR  this->_LispDir = %s\n", __FILE__, __LINE__, this->_LispDir.string().c_str()); 
 	}
     }
 
