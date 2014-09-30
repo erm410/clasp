@@ -54,6 +54,9 @@ clasp-boehm2:
 	(cd src/main; $(BJAM) -j$(PJOBS) target-os=$(TARGET_OS) link=$(LINK) bundle release boehm)
 	(cd src/main; make boehm)
 
+clasp-boehm-executable:
+	(cd src/main; $(BJAM) -j$(PJOBS) link=$(LINK) bundle release boehm)
+
 clasp-boehm:
 	(cd src/main; $(BJAM) -j$(PJOBS) link=$(LINK) bundle release boehm)
 	(cd src/main; make boehm)
