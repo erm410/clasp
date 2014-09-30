@@ -94,6 +94,7 @@ namespace core
 				" It must contain the word \"clasp\".\n"));
 	}
 	this->_RootDir = curPath;
+        printf("%s:%d this->_RootDir = %s\n", __FILE__, __LINE__, this->_RootDir.string().c_str());
 	this->findSubDirectories(curPath);
 	this->_Initialized=true;
     }
