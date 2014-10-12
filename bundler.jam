@@ -7,6 +7,7 @@ import path ;
 import project ;
 import feature ;
 import toolset ;
+import "class" : new ;
 
 local .top ;
 local .common ;
@@ -29,13 +30,39 @@ rule init ( top ? ) {
 #     }
 }
 
+type.register SCRAPE : : H ;
 type.register P : pmp ;   # use pmp so that pump.py dumps output to stdout
 type.register L : lisp ;
 type.change-generated-target-suffix CPP : : cc ;
 
+class scraper : generator {
+
+      rule __init__ ( * : * ) {
+	   generator.__init__ $(1) : $(2) : $(3) : $(4) : $(5) : $(6) : $(7) : $(8) : $(9) ;
+      }
+
+      rule generated-targets ( sources + : property-set : project name ? ) {
+
+      	   local file-target = [ generator.generated-targets $(sources)
+	             : $(property-set) : $(project) $(name) ] ;
+	   local actual-target = [ $(file-target).actualize ] ;
+ 
+	   if [ $(property-set).get <changes> ] = 1 {
+#	     ECHO NOUP $(actual-target) ;             
+	     NOUPDATE $(actual-target) ;
+	   } #else {
+#	     ECHO ALW $(actual-target) ;
+#	   }
+
+	   UPDATE $(actual-target) ;
+	   return $(temp) ;
+      }
+}
+
 generators.register-composing bundler.ptoh : P : H ;
 generators.register-composing bundler.ltoh : L : H ;
 generators.register-standard bundler.ltocc : L : CPP ;
+generators.register [ new scraper bundler.scraped : : SCRAPE ] ;
 
 feature.feature sanitize : asan msan amsan : optional ;
 feature.feature changes : 0 1 : incidental ;
@@ -47,7 +74,7 @@ rule bundle ( dir : sources * : properties * : opt_props * : dbg_props * )
      	  ( ( [ path.pwd ] = [ path.root $(dir) [ path.pwd ] ] ) ||
 	    ( --mi-all in [ modules.peek : ARGV ] ) ) ) {
 
-     	    echo [ SHELL "cd $(dir); touch symbols_scraped_inc.h; rm symbols_scraped_inc.h; touch symbols_scraped_inc.h" ] ;
+     	    echo [ SHELL "cd $(dir); rm -f symbols_scraped_inc.h; touch symbols_scraped_inc.h" ] ;
 
      	}
 
@@ -63,7 +90,7 @@ rule bundle ( dir : sources * : properties * : opt_props * : dbg_props * )
 
 	local lib = $(dir:B) ;
 
-	make $(lib)_scrape_flag.h : symbols_scraped_inc.h : @bundler.scraped : <changes>$(out[2]) ;
+	scrape $(lib)_scrape_flag.h : symbols_scraped_inc.h : <changes>$(out[2]) ;
 
 	make $(lib)_initClasses_inc.h :
 	     [ path.glob $(dir) : *.h ] :
@@ -113,18 +140,6 @@ rule bundle ( dir : sources * : properties * : opt_props * : dbg_props * )
 	alias $(lib) : $(lib)_mps_prep_dbg : <gc>mps-prep <variant>debug ;
 
 	install bundle : $(lib) : <location>$(.applib) ;
-}
-
-rule scraped ( target + : sources * : properties * )
-{
-
-	if "<changes>0" in $(properties) {
-	   ALWAYS $(targets) ;
-	}
-	else {
-	   NOUPDATE $(targets) ;
-	}
-
 }
 
 actions scraped
