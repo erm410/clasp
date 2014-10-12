@@ -115,7 +115,7 @@ rule bundle ( dir : sources * : properties * : opt_props * : dbg_props * )
 	install bundle : $(lib) : <location>$(.applib) ;
 }
 
-rule scraped ( target + : sources * : properties * )
+rule scraped ( targets + : sources * : properties * )
 {
 
 	if "<changes>0" in $(properties) {
